@@ -1,5 +1,7 @@
 {
     "windowTitle":"Accounting Software",
     "latest":"1.1.0",
-    "latestUpdateCheck": 1704799009
+    "latestUpdateCheck": 1704799009,
+    "iconPath": "./icon2.png",
+    "isAdminCreated":true
 }
