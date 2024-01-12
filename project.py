@@ -1,77 +1,93 @@
-#import area
+# Import area
 import sys
 import json
 import os
-from PyQt6.QtWidgets import QApplication, QMainWindow, QWidget
-from PyQt6.QtGui import QIcon
 import winreg
+from PyQt6.QtWidgets import QApplication, QWidget
+from PyQt6.QtGui import QIcon
+from cryptography.fernet import Fernet,InvalidToken 
 
-#class definaion
-#class ChildClass(ParentClass)
-class AccountingApp(QWidget):
-    #property
-    settings={}
-    #constructor
-    def __init__(self): #self is cio Class internal object
-        super().__init__() # ican call the parent constructor 
+# Class definition
+class AccountingApp(QWidget):                              
+    # Property
+    settings = {}
+    encryption_Key = Fernet.generate_key().decode()
+    cipher = Fernet(encryption_Key)
+
+    # Constructor
+    def __init__(self):
+        super().__init__()
         print('hello from constructor')
-         #lets try to read a json file
+        # Let's try to read a json file
         self.readJsonFile()
         self.checkAdminIsCreated()
         self.buildUI()
-    #method
+
+    # Method
     def checkAdminIsCreated(self):
         print("hello from checkAdminIsCreated ")
 
-    key_path = r"SOFTWARE\accounting_software"
-    value_name = "isAdminCreated"
+        key_path = r"SOFTWARE\as"
+        value_name = "dt"
+        default_json = '{"isAdmincreated":false,"isLicenseActivated":false}'
 
-    try:
+        key = None
+        try:
             # Open the registry key for reading
-        key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, key_path)
-        #read the value
-        value, _ = winreg.QueryValueEx(key, value_name)
-       
-        if value.lower() == "true":
-            #show login form
-            print("show the login form")
-            pass
-        elif value.lower() == "false":
-            #show the registration form
-            print("show the registration form")
-        else:
-            print("create a entry isAdminCreated= false")    
+            key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, key_path)
+            # Read the value
+            encryptValue, _ = winreg.QueryValueEx(key, value_name)
 
-        # Close the registry key
-    except FileNotFoundError:
+            if encryptValue:
+                # Decrypt the value if it exists
+                decryptValue = self.decryptValue(encryptValue)
+                print(f"Existing decrypted value: {decryptValue}")
+            else:
+                # Encrypt and create an entry with the registry key and set the default JSON string
+                encrypted_default_json = self.encryptValue(default_json)
+                print("Create an entry dt with default JSON value")
+                winreg.SetValueEx(key, value_name, 0, winreg.REG_SZ, encrypted_default_json)
+        except FileNotFoundError:
             key = winreg.CreateKey(winreg.HKEY_LOCAL_MACHINE, key_path)
-            winreg.SetValueEx(key, value_name, 0, winreg.REG_SZ, "false")
-        
-    winreg.CloseKey(key)
-    pass    
-    def readJsonFile(self): 
+            winreg.SetValueEx(key, value_name, 0, winreg.REG_SZ, default_json)
+        finally:
+            if key:
+                winreg.CloseKey(key)
+
+    def readJsonFile(self):
         try:
             with open('accounting.json', 'r') as file:
                 self.settings = json.load(file)
         except FileNotFoundError:
             self.settings = {}
-        print(self.settings)  
+        print(self.settings)
         print(type(self.settings))
-        pass      
+
+    def encryptValue(self, value):
+        encryptValue = self.cipher.encrypt(value.encode())
+        return encryptValue
+
+    def decryptValue(self, encryptValue):
+        try:
+            decryptValue = self.cipher.decrypt(encryptValue).decode()
+            return decryptValue
+        except InvalidToken:
+         print("Error: Invalid or corrupted token. Unable to decrypt.")
+        return None
+
 
     def buildUI(self):
-        self.setStyleSheet('background-color: #A4BFD8;') #actualargument
-        self.setWindowTitle(self.settings["windowTitle"])
+        self.setStyleSheet('background-color: #A4BFD8;')
+        self.setWindowTitle(self.settings.get("windowTitle", ""))
         self.showMaximized()
         self.show()
         icon_path = self.settings.get("iconPath", "")
         if os.path.exists(icon_path):
             icon = QIcon(icon_path)
             self.setWindowIcon(icon)
-        pass
 
-#create ClassObject
+# Create ClassObject
 app = QApplication([])
-ceo = AccountingApp() #ceo is class external object
+ceo = AccountingApp()
 ceo.showMaximized()
 sys.exit(app.exec())
