@@ -3,7 +3,7 @@ import sys
 import json
 import os
 import winreg
-from PyQt6.QtWidgets import QApplication, QWidget
+from PyQt6.QtWidgets import QApplication, QWidget,QVBoxLayout,QLabel,QLineEdit
 from PyQt6.QtGui import QIcon
 from cryptography.fernet import Fernet,InvalidToken
 import base64
@@ -19,11 +19,13 @@ class AccountingApp(QWidget):
     # Constructor
     def __init__(self):
         super().__init__()
-        print('hello from constructor')
+        """print('hello from constructor')
         # Let's try to read a json file
-        self.readJsonFile()
-        self.checkAdminIsCreated()
-        self.buildUI()
+        self.readJsonFile()"""
+        print(self.checkAdminIsCreated())
+        x=self.checkAdminIsCreated()
+        #calling(argument)
+        self.buildUI(isAdminCreated=x)
 
     # Method
         
@@ -38,9 +40,20 @@ class AccountingApp(QWidget):
         except InvalidToken:
          print("Error: Invalid or corrupted token. Unable to decrypt.")
          return None
+        
+    def readJsonFile(self):
+        try:
+            with open('accounting.json', 'r') as file:
+                self.settings = json.load(file)
+        except FileNotFoundError:
+            self.settings = {}
+        print(self.settings)
+        print(type(self.settings))    
             
     def checkAdminIsCreated(self):
-        print("hello from checkAdminIsCreated ")
+        #every function return something
+        return False
+        """print("hello from checkAdminIsCreated ")
 
         key_path = r"SOFTWARE\as"
         value_name = "dt"
@@ -75,22 +88,57 @@ class AccountingApp(QWidget):
             winreg.SetValueEx(key, value_name, 0, winreg.REG_SZ, encoded_encrypted_default_json)
         finally:
             if key:
-                winreg.CloseKey(key)
-
-    def readJsonFile(self):
-        try:
-            with open('accounting.json', 'r') as file:
-                self.settings = json.load(file)
-        except FileNotFoundError:
-            self.settings = {}
-        print(self.settings)
-        print(type(self.settings))
+                winreg.CloseKey(key)"""
 
 
-    def buildUI(self):
+    def buildUI(self,isAdminCreated):
         self.setStyleSheet('background-color: #A4BFD8;')
         self.setWindowTitle(self.settings.get("windowTitle", ""))
         self.showMaximized()
+
+        #Check If the admin Is created
+        if isAdminCreated == True:
+            print('Create Registration Form')
+
+            registration_layout = QVBoxLayout(self)
+            registration_layout.setStyleSheet('background-color: #D9D9D9;')
+
+            #labels edit
+            username_label = QLabel('Username:')
+            username_edit = QLineEdit()
+
+            password_label = QLabel('Password:')
+            password_edit = QLineEdit()
+            password_edit.setEchoMode(QLineEdit.EchoMode.Password)
+
+            confirm_password_label = QLabel('Confirm Password:')
+            confirm_password_edit = QLineEdit()
+            confirm_password_edit.setEchoMode(QLineEdit.EchoMode.Password)
+
+            registration_layout.addWidget(username_label)
+            registration_layout.addWidget(username_edit)
+            registration_layout.addWidget(password_label)
+            registration_layout.addWidget(password_edit)
+            registration_layout.addWidget(confirm_password_label)
+            registration_layout.addWidget(confirm_password_edit)
+            pass
+            
+        else:
+            print('Create Login Form')
+            login_layout = QVBoxLayout(self)
+
+            username_label_login = QLabel('Username:')
+            username_edit_login  = QLineEdit()
+
+            password_label_login = QLabel('Password:')
+            password_edit_login = QLineEdit()
+            password_edit_login.setEchoMode(QLineEdit.EchoMode.Password)
+
+            login_layout.addWidget(username_label_login)
+            login_layout.addWidget(username_edit_login)
+            login_layout.addWidget(password_label_login)
+            login_layout.addWidget(password_edit_login )
+            pass    
         self.show()
         icon_path = self.settings.get("iconPath", "")
         if os.path.exists(icon_path):

@@ -1,6 +1,6 @@
 from PyQt6.QtWidgets import QApplication, QMainWindow, QPushButton, QVBoxLayout,QWidget
-from login import LoginForm
-from register import RegisterForm
+from app.gui.forms.login.login import LoginForm
+from app.gui.forms.register.register import RegisterForm
 
 class MainWindow(QMainWindow):
     def __init__(self):

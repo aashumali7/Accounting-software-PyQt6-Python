@@ -6,7 +6,7 @@ class RegisterForm(QDialog):
     # Constructor
     def __init__(self):
         super().__init__()
-        loadUi('register_form.ui', self)
+        loadUi('register.ui', self)
 
         self.registerButton.clicked.connect(self.on_register_button_click)
 
