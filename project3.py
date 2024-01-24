@@ -108,8 +108,13 @@ class LandingPage(QWidget):
         main_layout = QVBoxLayout(self)
         main_layout.addWidget(group_box)
         main_layout.setAlignment(Qt.AlignmentFlag.AlignHCenter)
-        main_layout.setContentsMargins(QMargins(0, int(self.height() * 0.10), 0, int(self.width() * 0.50)))
+
+        # Set contents margins to create a 20% gap on all sides
+        margin = int(min(self.width(), self.height()) * 0.20)
+        main_layout.setContentsMargins(QMargins(margin, margin, margin, margin))
+
         self.setStyleSheet("background-color: white;")  # Set the background color
+
 
 
 class MainWindow(QWidget):
