@@ -1,22 +1,31 @@
 import sqlite3
+import hashlib
 
-#1 function defination is one time process
-def import_sql(dbname,sqlfile): #formal argument
-    #step 1 open a database
-    connection = sqlite3.connect('./data/'+dbname)
+# Function definition is a one-time process
+def import_sql(dbname, sqlfile):
+    # Step 1: Open a database
+    connection = sqlite3.connect('./data/' + dbname)
     cursor = connection.cursor()
+    
     try:
         # Read the SQL file
-        with open('./data/'+sqlfile, 'r') as sqlfile:
+        with open('./data/' + sqlfile, 'r') as sql_file:
             # Read the entire content of the file
-            sql_script = sqlfile.read()
-            
+            sql_script = sql_file.read()
+
             # Execute the SQL script
-            connection.executescript(sql_script)
-            
-           #commit the changes
+            cursor.executescript(sql_script)
+
+            # Hash the password before insertion
+            hashed_password = hashlib.sha256('009988'.encode()).hexdigest()
+
+            # Insert some data
+            cursor.execute('INSERT INTO users (username, password, role) VALUES (?, ?, ?)',
+                           ('rohit', hashed_password, 'operator'))
+
+            # Commit the changes
             connection.commit()
-            print("SQL file imported succesfully")
+            print("SQL file imported successfully")
 
     except Exception as e:
         print(f"Error importing SQL file: {e}")
@@ -25,9 +34,5 @@ def import_sql(dbname,sqlfile): #formal argument
         # Close the database connection
         connection.close()
 
-
-    #step last close a database
-    pass
-
-# function calling is many time process
-import_sql('accounting.db','accounting.sql') #actual argument
+# Function calling is a many-time process
+import_sql('accounting.db', 'accounting.sql')  # Actual argument
