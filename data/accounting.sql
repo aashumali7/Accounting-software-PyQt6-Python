@@ -2,7 +2,7 @@ CREATE TABLE IF NOT EXISTS users (
     id   INTEGER PRIMARY KEY,
     username TEXT NOT NULL COLLATE NOCASE,
     password TEXT NOT NULL COLLATE NOCASE,
-    role TEXT CHECK(role IN ('businessowner', 'accountant', 'operator'))
+    role TEXT CHECK(role IN ('admin', 'accountant', 'operator'))
 );
 
 CREATE TABLE IF NOT EXISTS customers (

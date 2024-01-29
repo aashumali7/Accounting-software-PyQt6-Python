@@ -1,3 +1,4 @@
+from lib.initialSetup import import_sql ,checkIfAdminRegister
 from PyQt6.QtWidgets import QApplication, QMainWindow, QPushButton, QVBoxLayout,QWidget
 from app.gui.forms.login.login import LoginForm
 from app.gui.forms.register.register import RegisterForm
@@ -5,6 +6,15 @@ from app.gui.forms.register.register import RegisterForm
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
+        
+        import_sql('accounting.db','accounting.sql')
+        checkIfAdminRegister()
+        if checkIfAdminRegister() :
+           print('show the Login from')
+           pass
+        else :
+            print('show the Registration from')
+            pass
 
         self.setWindowTitle("Main Window")
 

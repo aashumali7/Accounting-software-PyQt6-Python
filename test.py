@@ -1,38 +1,40 @@
-import sqlite3
-import hashlib
+import sys
+from PyQt6.QtWidgets import QApplication, QMainWindow, QSplitter, QWidget, QVBoxLayout
+from PyQt6.QtCore import Qt
 
-# Function definition is a one-time process
-def import_sql(dbname, sqlfile):
-    # Step 1: Open a database
-    connection = sqlite3.connect('./data/' + dbname)
-    cursor = connection.cursor()
-    
-    try:
-        # Read the SQL file
-        with open('./data/' + sqlfile, 'r') as sql_file:
-            # Read the entire content of the file
-            sql_script = sql_file.read()
+class MyWindow(QMainWindow):
+    def __init__(self):
+        super().__init__()
 
-            # Execute the SQL script
-            cursor.executescript(sql_script)
+        splitter = QSplitter(Qt.Orientation.Horizontal)
 
-            # Hash the password before insertion
-            hashed_password = hashlib.sha256('009988'.encode()).hexdigest()
+        # First partition (80%)
+        first_widget = QWidget()
+        first_widget.setStyleSheet("background-color: white;")
+        splitter.addWidget(first_widget)
+        splitter.setStretchFactor(0, 8)  # Set stretch factor for the first widget
 
-            # Insert some data
-            cursor.execute('INSERT INTO users (username, password, role) VALUES (?, ?, ?)',
-                           ('rohit', hashed_password, 'operator'))
+        # Second partition (20%)
+        second_widget = QWidget()
+        second_widget.setStyleSheet("background-color: black;")
+        splitter.addWidget(second_widget)
+        splitter.setStretchFactor(1, 2)  # Set stretch factor for the second widget
 
-            # Commit the changes
-            connection.commit()
-            print("SQL file imported successfully")
+        # Set up the main layout
+        layout = QVBoxLayout()
+        layout.addWidget(splitter)
 
-    except Exception as e:
-        print(f"Error importing SQL file: {e}")
+        # Set the layout for the main window
+        central_widget = QWidget()
+        central_widget.setLayout(layout)
+        self.setCentralWidget(central_widget)
 
-    finally:
-        # Close the database connection
-        connection.close()
+        self.setGeometry(100, 100, 800, 600)
+        self.setWindowTitle("Partitioned Window")
+        self.showMaximized()
+        self.show()
 
-# Function calling is a many-time process
-import_sql('accounting.db', 'accounting.sql')  # Actual argument
+if __name__ == '__main__':
+    app = QApplication(sys.argv)
+    window = MyWindow()
+    sys.exit(app.exec())
